@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 
 TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_ID = os.getenv("CHANNEL_ID")   # مثل @mychannel یا -100xxxxxxxx
+
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
@@ -22,19 +23,28 @@ def get_dollar_price():
 
     soup = BeautifulSoup(r.text, "html.parser")
 
+    # حالت‌های مختلف گرفتن قیمت
     t = soup.find(attrs={"itemprop": "price"})
     if t:
-        return (t.get("content") or t.text).strip()
+        rial = (t.get("content") or t.text).strip()
+    else:
+        d = soup.find(attrs={"data-price": True})
+        if d:
+            rial = d["data-price"]
+        else:
+            s = soup.select_one("span.price, span.value")
+            if s:
+                rial = s.text.strip()
+            else:
+                return None
 
-    d = soup.find(attrs={"data-price": True})
-    if d:
-        return d["data-price"]
+    # پاکسازی
+    rial = rial.replace(",", "").replace(" ", "")
 
-    s = soup.select_one("span.price, span.value")
-    if s:
-        return s.text.strip()
+    # تبدیل ریال ➜ تومان
+    toman = round(int(rial) / 10)
 
-    return None
+    return toman
 
 
 def send_price_to_channel():
@@ -44,13 +54,11 @@ def send_price_to_channel():
         if price:
             bot.send_message(
                 CHANNEL_ID,
-                f"💵 قیمت دلار آزاد (لحظه‌ای):\n\n{price} تومان"
+                f"💵 قیمت دلار آزاد (لحظه‌ای):\n\n{price:,} تومان"
             )
         else:
-            bot.send_message(
-                CHANNEL_ID,
-                "❗️ نتوانستم قیمت دلار را دریافت کنم."
-            )
+            print("❗️ نتوانستم قیمت دلار را دریافت کنم.")
+            
 
     except Exception as e:
         print("ERROR:", e)
@@ -58,7 +66,10 @@ def send_price_to_channel():
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.reply_to(message, "ربات فعال است و هر ۳۰ دقیقه قیمت دلار را در کانال ارسال می‌کند.")
+    bot.reply_to(
+        message,
+        "ربات فعال است و هر ۳۰ دقیقه قیمت دلار را در کانال ارسال می‌کند."
+    )
 
 
 @app.route("/")
@@ -67,14 +78,13 @@ def home():
 
 
 if __name__ == "__main__":
-    # راه‌اندازی ارسال زمان‌بندی شده
+    # زمان‌بندی بر اساس ساعت ایران
     scheduler = BackgroundScheduler(timezone=ZoneInfo("Asia/Tehran"))
 
-    # هر روز، هر ۳۰ دقیقه (دقیقه های 0 و 30)
     scheduler.add_job(
         send_price_to_channel,
         'cron',
-        minute='0,30'
+        minute='0,30'  # دقیقاً 00 و 30
     )
 
     scheduler.start()
