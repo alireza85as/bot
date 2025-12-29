@@ -54,7 +54,7 @@ def send_price_to_channel():
         if price:
             bot.send_message(
                 CHANNEL_ID,
-                f"💵 قیمت دلار آزاد (لحظه‌ای):\n\n{price:,} تومان"
+                f"🔖**قیمت دلار**:\n\n📥دلار آزاد {price:,} تومان 💵"
             )
         else:
             print("❗️ نتوانستم قیمت دلار را دریافت کنم.")
@@ -69,7 +69,7 @@ def start(message):
     price = get_dollar_price()
     bot.reply_to(
         message,
-                f"💵 قیمت دلار آزاد (لحظه‌ای):\n\n{price:,} تومان"
+                f"🔖**قیمت دلار**:\n\n📥دلار آزاد {price:,} تومان 💵"
             )
 
 
