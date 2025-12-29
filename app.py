@@ -88,7 +88,7 @@ if __name__ == "__main__":
     scheduler.add_job(
         send_price_to_channel,
         'cron',
-        minute='0,30'  # دقیقاً 00 و 30
+        minute='0'  # دقیقاً 00
     )
 
     scheduler.start()
