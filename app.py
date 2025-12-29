@@ -1,4 +1,5 @@
 import os
+import time
 import threading
 import requests
 from flask import Flask
@@ -52,9 +53,10 @@ def send_price_to_channel():
         price = get_dollar_price()
 
         if price:
+            time.sleep(3)
             bot.send_message(
                 CHANNEL_ID,
-                f"🔖*قیمت دلار*:\n\n📥دلار آزاد {price:,} تومان 💵"
+                f"🔖قیمت دلار:\n\n📥دلار آزاد {price:,} تومان 💵"
             )
         else:
             print("❗️ نتوانستم قیمت دلار را دریافت کنم.")
@@ -67,9 +69,10 @@ def send_price_to_channel():
 @bot.message_handler(commands=['start'])
 def start(message):
     price = get_dollar_price()
+    time.sleep(3)
     bot.reply_to(
         message,
-                f"🔖*قیمت دلار*:\n\n📥دلار آزاد {price:,} تومان 💵"
+                f"🔖قیمت دلار:\n\n📥دلار آزاد {price:,} تومان 💵"
             )
 
 
