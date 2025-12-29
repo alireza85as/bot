@@ -66,6 +66,7 @@ def send_price_to_channel():
 
 @bot.message_handler(commands=['start'])
 def start(message):
+    price = get_dollar_price()
     bot.reply_to(
         message,
                 f"💵 قیمت دلار آزاد (لحظه‌ای):\n\n{price:,} تومان"
