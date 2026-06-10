@@ -9,7 +9,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from zoneinfo import ZoneInfo
 
 TOKEN = os.getenv("BOT_TOKEN")
-CHANNEL_ID = os.getenv("CHANNEL_ID")   # مثل @mychannel یا -100xxxxxxxx
+CHANNEL_ID = os.getenv("CHANNEL_ID")
 
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
@@ -42,7 +42,7 @@ def get_dollar_price():
     # پاکسازی
     rial = rial.replace(",", "").replace(" ", "")
 
-    # تبدیل ریال ➜ تومان
+    
     toman = round(int(rial) / 10)
 
     return toman
@@ -88,12 +88,11 @@ if __name__ == "__main__":
     scheduler.add_job(
         send_price_to_channel,
         'cron',
-        minute='0'  # دقیقاً 00
+        minute='0'
     )
 
     scheduler.start()
-
-    # Polling تلگرام
+    
     t = threading.Thread(target=bot.infinity_polling, daemon=True)
     t.start()
 
